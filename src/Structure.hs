@@ -48,16 +48,16 @@ memberDict :: String -> PrefixTreeDict v -> Bool
 memberDict key dict = isJust (lookupDict key dict)
 
 filterDict :: (String -> v -> Bool) -> PrefixTreeDict v -> PrefixTreeDict v
-filterDict p dict = filterNode p "" dict
+filterDict p = filterNode p ""
 
 foldlDict :: (b -> String -> v -> b) -> b -> PrefixTreeDict v -> b
-foldlDict f z dict = foldlNode f z "" dict
+foldlDict f z = foldlNode f z ""
 
 foldrDict :: (String -> v -> b -> b) -> b -> PrefixTreeDict v -> b
-foldrDict f z dict = foldrNode f z "" dict
+foldrDict f z = foldrNode f z ""
 
 mapDict :: (v -> w) -> PrefixTreeDict v -> PrefixTreeDict w
-mapDict f dict = mapNode f dict
+mapDict = mapNode
 
 mergeDict :: PrefixTreeDict v -> PrefixTreeDict v -> PrefixTreeDict v
 mergeDict lhs rhs =

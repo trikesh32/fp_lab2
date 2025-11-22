@@ -1,6 +1,8 @@
 module Main (main) where
 
 import Control.Monad (unless)
+import Data.Bifunctor (second)
+import Data.Maybe (isNothing)
 import Structure
 import System.Exit (exitFailure)
 import Test.HUnit hiding (Testable)
@@ -80,10 +82,14 @@ unitTests =
     ]
 
 prop_monoidLeftIdentity :: StringDict -> Bool
-prop_monoidLeftIdentity (StringDict dict) = mempty <> dict == dict
+prop_monoidLeftIdentity (StringDict dict) =
+  let result = mempty <> dict
+   in result == dict
 
 prop_monoidRightIdentity :: StringDict -> Bool
-prop_monoidRightIdentity (StringDict dict) = dict <> mempty == dict
+prop_monoidRightIdentity (StringDict dict) =
+  let result = dict <> mempty
+   in result == dict
 
 prop_monoidAssociativity :: StringDict -> StringDict -> StringDict -> Bool
 prop_monoidAssociativity (StringDict a) (StringDict b) (StringDict c) =
@@ -97,18 +103,18 @@ prop_insertThenLookup key val (StringDict dict) =
 prop_deleteThenLookup :: String -> StringDict -> Bool
 prop_deleteThenLookup key (StringDict dict) =
   let dict' = deleteDict key dict
-   in lookupDict key dict' == Nothing
+   in isNothing (lookupDict key dict')
 
 prop_filterMatchesList :: Fun (String, Int) Bool -> StringDict -> Bool
 prop_filterMatchesList (Fun _ predicate) (StringDict dict) =
-  let filtered = filterDict (\k v -> predicate (k, v)) dict
+  let filtered = filterDict (curry predicate) dict
       expected = fromListDict (filter predicate (toListDict dict))
    in filtered == expected
 
 prop_mapMatchesList :: Fun Int Int -> StringDict -> Bool
 prop_mapMatchesList (Fun _ f) (StringDict dict) =
   let mapped = mapDict f dict
-      expected = fromListDict (map (\(k, v) -> (k, f v)) (toListDict dict))
+      expected = fromListDict (map (second f) (toListDict dict))
    in mapped == expected
 
 prop_foldlConsistent :: StringDict -> Bool
