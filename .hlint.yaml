@@ -4,6 +4,8 @@
 - ignore: {name: "Use camelCase"}
 - ignore: {name: "Redundant bracket"}
 - ignore: {name: "Use newtype instead of data"}
+- ignore: {name: "Monoid law, left identity", within: [prop_monoidLeftIdentity]}
+- ignore: {name: "Monoid law, right identity", within: [prop_monoidRightIdentity]}
 
 # Custom rules for the project
 - warn: {lhs: "a == True", rhs: "a"}
