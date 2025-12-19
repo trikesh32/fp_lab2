@@ -19,7 +19,7 @@ fromListDict :: [(String, Int)] -> PrefixTreeDict Int
 fromListDict = foldr (\(k, v) acc -> insertDict k v acc) mempty
 
 toListDict :: PrefixTreeDict Int -> [(String, Int)]
-toListDict = foldrDict (\k v acc -> (k, v) : acc) []
+toListDict = foldrWithKey (\k v acc -> (k, v) : acc) []
 
 testInsertAndLookup :: Test
 testInsertAndLookup = TestCase $ do
@@ -49,14 +49,14 @@ testFoldAggregatesValues :: Test
 testFoldAggregatesValues = TestCase $ do
   let dict :: PrefixTreeDict Int
       dict = fromListDict [("one", 1), ("two", 2), ("three", 3)]
-      sumValues = foldlDict (\acc _ v -> acc + v) 0 dict
+      sumValues = foldlWithKey (\acc _ v -> acc + v) 0 dict
   assertEqual "Fold should sum all values" 6 sumValues
 
 testMapTransformsValues :: Test
 testMapTransformsValues = TestCase $ do
   let dict :: PrefixTreeDict Int
       dict = fromListDict [("a", 1), ("b", 2), ("c", 3)]
-      mapped = mapDict (* 10) dict
+      mapped = fmap (* 10) dict
   assertEqual "Mapped value should be transformed" (Just 10) (lookupDict "a" mapped)
   assertEqual "Mapped value should be transformed" (Just 20) (lookupDict "b" mapped)
   assertEqual "Mapped value should be transformed" (Just 30) (lookupDict "c" mapped)
@@ -113,13 +113,13 @@ prop_filterMatchesList (Fun _ predicate) (StringDict dict) =
 
 prop_mapMatchesList :: Fun Int Int -> StringDict -> Bool
 prop_mapMatchesList (Fun _ f) (StringDict dict) =
-  let mapped = mapDict f dict
+  let mapped = fmap f dict
       expected = fromListDict (map (second f) (toListDict dict))
    in mapped == expected
 
 prop_foldlConsistent :: StringDict -> Bool
 prop_foldlConsistent (StringDict dict) =
-  let result = foldlDict (\acc k v -> (k, v) : acc) [] dict
+  let result = foldlWithKey (\acc k v -> (k, v) : acc) [] dict
       expected = reverse (toListDict dict)
    in length result == length expected
 
