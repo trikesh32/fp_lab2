@@ -73,7 +73,7 @@ mergeDict lhs rhs =
    in foldlWithKey insertFn lhs rhs
 
 foldlWithKey :: (b -> String -> v -> b) -> b -> PrefixTreeDict v -> b
-foldlWithKey f acc node = foldlWithPrefix "" f acc node
+foldlWithKey = foldlWithPrefix ""
   where
     foldlWithPrefix :: String -> (b -> String -> v -> b) -> b -> PrefixTreeDict v -> b
     foldlWithPrefix prefix func z n =
@@ -83,7 +83,7 @@ foldlWithKey f acc node = foldlWithPrefix "" f acc node
        in Map.foldlWithKey (\acc' c child -> foldlWithPrefix (prefix ++ [c]) func acc' child) z' (children n)
 
 foldrWithKey :: (String -> v -> b -> b) -> b -> PrefixTreeDict v -> b
-foldrWithKey f acc node = foldrWithPrefix "" f acc node
+foldrWithKey = foldrWithPrefix ""
   where
     foldrWithPrefix :: String -> (String -> v -> b -> b) -> b -> PrefixTreeDict v -> b
     foldrWithPrefix prefix func z n =
@@ -106,23 +106,23 @@ instance Functor PrefixTreeDict where
       }
 
 instance Foldable PrefixTreeDict where
-  foldr f acc node = foldrValues f acc node
+  foldr = foldrValues
     where
       foldrValues :: (v -> b -> b) -> b -> PrefixTreeDict v -> b
       foldrValues func z n =
-        let z' = foldr (\child acc' -> foldrValues func acc' child) z (children n)
+        let z' = foldr (flip (foldrValues func)) z (children n)
          in case value n of
               Just v -> func v z'
               Nothing -> z'
 
-  foldl f acc node = foldlValues f acc node
+  foldl = foldlValues
     where
       foldlValues :: (b -> v -> b) -> b -> PrefixTreeDict v -> b
       foldlValues func z n =
         let z' = case value n of
               Just v -> func z v
               Nothing -> z
-         in foldl (\acc' child -> foldlValues func acc' child) z' (children n)
+         in foldl (foldlValues func) z' (children n)
 
 instance Eq v => Eq (PrefixTreeDict v) where
   lhs == rhs =
